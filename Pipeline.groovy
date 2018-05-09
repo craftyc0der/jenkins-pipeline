@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-package com.onscale.jenkins-pipeline
+package com.onscale.jenkinspipeline
 
 def kubectlTest() {
     // Test that kubectl can correctly communication with the Kubernetes API
