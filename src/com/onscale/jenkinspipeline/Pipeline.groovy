@@ -92,13 +92,13 @@ def gitEnvVars() {
 
 def containerBuildPub(Map args) {
 
-    println "Running Docker build/publish: ${args.host}/${args.acct}/${args.repo}:${args.tags}"
+    println "Running Docker build/publish: ${args.host}/${args.repo}:${args.tags}"
 
     docker.withRegistry("https://${args.host}", "${args.auth_id}") {
 
-        // def img = docker.build("${args.acct}/${args.repo}", args.dockerfile)
-        def img = docker.image("${args.acct}/${args.repo}")
-        sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.acct}/${args.repo} ${args.dockerfile}"
+        // def img = docker.build("${args.repo}", args.dockerfile)
+        def img = docker.image("${args.repo}")
+        sh "docker build --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.repo} ${args.dockerfile}"
         for (int i = 0; i < args.tags.size(); i++) {
             img.push(args.tags.get(i))
         }
@@ -156,20 +156,6 @@ def getContainerTags(config, Map tags = [:]) {
     }
 
     return tags
-}
-
-def getContainerRepoAcct(config) {
-
-    println "setting container registry creds according to Jenkinsfile.json"
-    def String acct
-
-    if (env.BRANCH_NAME == 'master') {
-        acct = config.container_repo.master_acct
-    } else {
-        acct = config.container_repo.alt_acct
-    }
-
-    return acct
 }
 
 @NonCPS
