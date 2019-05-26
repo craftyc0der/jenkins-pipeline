@@ -99,10 +99,10 @@ def containerBuildPub(Map args) {
         // def img = docker.build("${args.repo}", args.dockerfile)
         def img = docker.image("${args.repo}")
         def network = ""
-        if(args.network) {
-            network = "--network=host"
+        if(args.containsKey("network")) {
+            network = "--network=${args.network}"
         }
-        sh "docker build ${network} --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.repo} ${args.dockerfile}"
+        sh "docker build ${network} --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.repo} ${args.dockerfile}"  
         for (int i = 0; i < args.tags.size(); i++) {
             img.push(args.tags.get(i))
         }
