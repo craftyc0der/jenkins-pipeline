@@ -44,14 +44,22 @@ def helmDeploy(Map args) {
     if (args.dry_run) {
         println "Running dry-run deployment"
 
-        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} " + (args.helm_values ? "-f ${args.helm_values} " : "") + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${namespace}"
+        sh "helm upgrade --dry-run --install --recreate-pods ${args.name} ${args.chart_dir} " +
+            (args.helm_values ? "-f ${args.helm_values} " : "") +
+            (release_overrides ? "--set ${release_overrides}" : "") +
+            " --namespace=${namespace}"
     } else {
         println "Running deployment"
 
         sh "helm dependency update ${args.chart_dir}"
-        sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (args.helm_values ? "-f ${args.helm_values} " : "") + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${namespace}" + " --wait"
+        sh "helm upgrade --install --recreate-pods ${args.name} ${args.chart_dir} " +
+            (args.helm_values ? "-f ${args.helm_values} " : "") +
+            (release_overrides ? "--set ${release_overrides}" : "") +
+            " --namespace=${namespace}" +
+            " --wait"
 
-        echo "Application ${args.name} successfully deployed. Use helm status ${args.name} to check"
+        echo "Application ${args.name} successfully deployed. " +
+            "Use helm status ${args.name} to check"
     }
 }
 
@@ -102,7 +110,9 @@ def containerBuildPub(Map args) {
         if(args.containsKey("network")) {
             network = "--network=${args.network}"
         }
-        sh "docker build ${network} --build-arg VCS_REF=${env.GIT_SHA} --build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` -t ${args.repo} ${args.dockerfile}"  
+        sh "docker build ${network} --build-arg VCS_REF=${env.GIT_SHA} " +
+            "--build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` " +
+            "-t ${args.repo} ${args.dockerfile}"
         for (int i = 0; i < args.tags.size(); i++) {
             img.push(args.tags.get(i))
         }
